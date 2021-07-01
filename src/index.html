@@ -15,7 +15,7 @@
           <!-- ALERT BOX -->
           <div id="info-box"></div>
           <!-- WELCOME PAGE -->
-          <div class="card text-center welcome_page">
+          <div id="welcome-page" class="card text-center welcome_page">
             <div class="card-header">
               <h2>ReflexGame - Vanilla JS</h2>
             </div>
@@ -26,7 +26,7 @@
               <div>
                 <p class="mb-4 fs-5">Choose difficulty level...</p>
                 <div class="btn-group-vertical" role="group" aria-label="Basic radio toggle button group">
-                  <input type="radio" class="btn-check" data-id="gameplay-level" name="btnradio" id="easy-level" autocomplete="off" checked>
+                  <input type="radio" class="btn-check" data-id="gameplay-level" name="btnradio" id="easy-level" autocomplete="off">
                   <label class="btn btn-outline-primary" for="easy-level">Easy (4x4)</label>
                 
                   <input type="radio" class="btn-check" data-id="gameplay-level" name="btnradio" id="medium-level" autocomplete="off">
@@ -39,6 +39,18 @@
             </div>
             <div class="card-footer">
               <button type="button" id="start_game_button" class="btn btn-success">Start game!</button>
+            </div>
+          </div>
+          <!-- DASHBOARD PAGE -->
+          <div id="dashboard-page" class="card">
+            <h1>Dashboard game page</h1>
+            <div class="card-body">
+              <div class="game__board">
+                <div class="game__board-card bg-light"></div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button type="button" id="end-game-button" class="btn btn-primary">End Game</button>
             </div>
           </div>
         </div>

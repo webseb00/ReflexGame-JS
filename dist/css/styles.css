@@ -22,3 +22,7 @@ body {
 .player_input {
   width: 360px;
 }
+
+#dashboard-page {
+  display: none;
+}

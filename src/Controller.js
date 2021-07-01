@@ -12,37 +12,46 @@ class Controller {
     const regex = /[a-zA-Z]+/g;
     const { gameState } = this.model;
     const { setMessage, clearMessage } = this.view;
-
-    if(!regex.test(inputValue)) {
-      if(gameState.message) {
-        return false;
-      } else {
-        setMessage('warning', 'Please enter your name!');
-        gameState.message = true;
-        return false;
-      }
-    }
+    console.log(inputValue);
 
     gameState.playerName = inputValue;
-    if(gameState.message) { 
-      gameState.message = false; 
-      clearMessage();
-      console.log(gameState);
-    }
+    this.setCurrentPage();
+
   }
 
-  setGamePlayLevel = () => {
-    const levelButtons = this.view.difficultyLevelButtons;
-    
-    levelButtons.forEach(button => button.addEventListener('click', e => {
-      const { id } = e.target;
-      this.model.gameState.gameplayLevel = id;
-    }));
+  setCurrentPage = () => {
+    const { gameState } = this.model;
+    const { setDashboardPage, endGameButton } = this.view;
+
+    if(gameState.currentPage === 'welcome') {
+      gameState.currentPage = 'dashboard';
+      setDashboardPage();
+      endGameButton.addEventListener('click', this.cancelGame);
+    } 
+  }
+
+  cancelGame = () => {
+    // reset main game state and remove event listeners 
+    const { resetState } = this.model;
+    const { clearPlayerInput, setWelcomePage, endGameButton, startGameButton, difficultyLevelButtons } = this.view;
+    resetState();
+    clearPlayerInput();
+    setWelcomePage();
+    endGameButton.removeEventListener('click', this.cancelGame);
+    startGameButton.removeEventListener('click', this.handleStartGame);
+    difficultyLevelButtons.forEach(button => button.removeEventListener('click', e => this.setGamplayLevel(e)));
+    this.initFunctions();
+  }
+
+  setGameplayLevel = e => {
+    const { id } = e.target;
+    this.model.gameState.gameplayLevel = id;
   }
 
   initFunctions = () => {
-    this.setGamePlayLevel();
-    this.view.startGameButton.addEventListener('click', () => this.handleStartGame());
+    const { startGameButton, difficultyLevelButtons } = this.view;
+    difficultyLevelButtons.forEach(button => button.addEventListener('click', e => this.setGameplayLevel(e)));
+    startGameButton.addEventListener('click', this.handleStartGame);
   }
 }
 
