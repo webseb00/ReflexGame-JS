@@ -4,10 +4,10 @@ class Model {
     this.gameState = {
       timeToFinishGame: 0,
       squareHighlightTime: 2000,
-      gameTimeDuration: 60 * 1000,
+      gameTimeDuration: 60,
       playerName: null,
       playerPoints: 0,
-      playerLifes: 3,
+      playerLives: 3,
       gameplayLevel: 'easy-level',
       message: false,
       currentPage: 'welcome'
@@ -18,10 +18,10 @@ class Model {
     this.gameState = {
       timeToFinishGame: 0,
       squareHighlightTime: 2000,
-      gameTimeDuration: 60 * 1000,
+      gameTimeDuration: 60,
       playerName: null,
       playerPoints: 0,
-      playerLifes: 3,
+      playerLives: 3,
       gameplayLevel: 'easy-level',
       message: false,
       currentPage: 'welcome'

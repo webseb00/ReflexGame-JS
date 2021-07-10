@@ -12,20 +12,26 @@ class Controller {
     const regex = /[a-zA-Z]+/g;
     const { gameState } = this.model;
     const { setMessage, clearMessage } = this.view;
-    
+    // check if user enters value into input
     if(!regex.test(inputValue)) {
       setMessage('warning', 'Please enter your name!');
       setTimeout(() => clearMessage(), 4000);
       return false;
+    } 
+    // check if player name have up to 10 letters
+    if(inputValue.length > 10) {
+      setMessage('warning', 'Name can only have up to 10 letters!');
+      setTimeout(() => clearMessage(), 4000);
+      return false;
+    } else {
+      gameState.playerName = inputValue;
+      this.setCurrentPage();
     }
-
-    gameState.playerName = inputValue;
-    this.setCurrentPage();
   }
 
   setCurrentPage = () => {
     const { gameState } = this.model;
-    const { setDashboardPage, endGameButton, createGameCards } = this.view;
+    const { setDashboardPage, endGameButton } = this.view;
 
     if(gameState.currentPage === 'welcome') {
       gameState.currentPage = 'dashboard';
@@ -36,8 +42,10 @@ class Controller {
   }
 
   handleGamePlay = () => {
-    const { gameplayLevel, playerPoints } = this.model.gameState;
-    const { gamePlayTimer, addCardColor, gameBoard, createGameCards } = this.view;
+    const { gameplayLevel, playerPoints, playerLives } = this.model.gameState;
+    const { gameTimer, addCardColor, removeCardColor, gameBoard, createGameCards, badgePoints, badgeLives, badgeName } = this.view;
+
+    badgeName.innerText = `${this.model.gameState.playerName}`;
 
     let numberOfCards;
     if(gameplayLevel === 'easy-level') { numberOfCards = 16; }
@@ -49,22 +57,56 @@ class Controller {
     let clickedCardNumber = null;
     let randomNumber = null;
 
+    const checkPlayerLives = () => {
+      --this.model.gameState.playerLives;
+      badgeLives.innerText = `${this.model.gameState.playerLives}`;
+
+      if(this.model.gameState.playerLives === 0) {
+        console.log('you lost the game!');
+        clearInterval(startCardInterval);
+        clearInterval(startTimerInterval);
+      }
+    }
+
     gameBoard.addEventListener('click', e => {
       if(e.target.classList.contains('game__board-card')) {
         clickedCardNumber = e.target.id.split('-')[1];
         
         if(clickedCardNumber === randomNumber.toString()) {
-          console.log(clickedCardNumber);
           ++this.model.gameState.playerPoints;
-          console.log(`Player points: ${this.model.gameState.playerPoints}`);
+          badgePoints.innerText = `${this.model.gameState.playerPoints}`;
+        } else {
+          checkPlayerLives();
         }
       }
     });
 
-    setInterval(() => {
+    const checkIfCardClicked = () => {
+      if(!clickedCardNumber) { checkPlayerLives(); }
+    }
+
+    // set interval for highlighting card
+    const cardInterval = () => {
       randomNumber = Math.floor(Math.random() * numberOfCards) + 1;
       addCardColor(randomNumber);
-    }, 2000);
+      checkIfCardClicked();
+    }
+
+    const startCardInterval = setInterval(cardInterval, 2000);
+
+    // set interval for game timer
+    const timerInterval = () => {
+      --this.model.gameState.gameTimeDuration;
+      gameTimer(this.model.gameState.gameTimeDuration);
+
+      if(this.model.gameState.gameTimeDuration === 0) {
+        console.log('Time is out!');
+        clearInterval(startTimerInterval);
+      }
+    }
+
+    const startTimerInterval = setInterval(timerInterval, 1000);
+
   }
 
   cancelGame = () => {

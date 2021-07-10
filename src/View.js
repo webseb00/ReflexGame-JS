@@ -9,7 +9,10 @@ class View {
     this.infoBox = document.querySelector('#info-box');
     this.endGameButton = document.querySelector('#end-game-button');
     this.gameBoard = document.querySelector('.game__board');
-    this.timer = document.querySelector('.timer');
+    this.badgePoints = document.querySelector('#badge-points');
+    this.badgeLives = document.querySelector('#badge-lives');
+    this.badgeTime = document.querySelector('#badge-time');
+    this.badgeName = document.querySelector('#badge-name');
   };
 
   setDashboardPage = () => {
@@ -38,14 +41,16 @@ class View {
   addCardColor = (randomNumber) => {
     const findCardByNumber = document.querySelector(`#card-${randomNumber}`);
     findCardByNumber.classList.add('bg-primary');
+
+    setTimeout(() => this.removeCardColor(findCardByNumber), 2000);
   }
 
-  removeCardColor = () => {
-
+  removeCardColor = (card) => {
+    card.classList.remove('bg-primary');
   }
 
-  gamePlayTimer = () => {
-
+  gameTimer = (time) => {
+    this.badgeTime.innerText = time >= 10 ? `${time} sec.` : `0${time} sec.`; 
   }
 
   setMessage = (type, text) => {

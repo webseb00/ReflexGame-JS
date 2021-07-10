@@ -18,7 +18,6 @@
           <div id="welcome-page" class="card text-center welcome_page">
             <div class="card-header">
               <h2>ReflexGame - Vanilla JS</h2>
-              <div class="timer">60</div>
             </div>
             <div class="card-body">
               <div class="mb-4 d-flex justify-content-center">
@@ -44,7 +43,22 @@
           </div>
           <!-- DASHBOARD PAGE -->
           <div id="dashboard-page" class="card">
-            <h1>Dashboard game page</h1>
+            <div class="card-header">
+              <div class="dashboard-info">
+                <div class="dashboard-box border-end">
+                  <p>Points <span id="badge-points" class="badge bg-danger">0</span></p>
+                </div>
+                <div class="dashboard-box border-end">
+                  <p>Lives <span id="badge-lives" class="badge bg-success">0</span></p>
+                </div>
+                <div class="dashboard-box border-end">
+                  <p>Time <span id="badge-time" class="badge bg-info">60 sec.</span></p>
+                </div>
+                <div class="dashboard-box">
+                  <p>Player <span id="badge-name" class="badge bg-dark">Name</span></p>
+                </div>
+              </div>
+            </div>
             <div class="card-body">
               <div class="game__board"></div>
             </div>
