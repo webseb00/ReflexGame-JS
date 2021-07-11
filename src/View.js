@@ -13,6 +13,8 @@ class View {
     this.badgeLives = document.querySelector('#badge-lives');
     this.badgeTime = document.querySelector('#badge-time');
     this.badgeName = document.querySelector('#badge-name');
+    this.dashboardMessage = document.querySelector('.dashboard-message');
+    this.playAgainButton = document.querySelector('#try-again');
   };
 
   setDashboardPage = () => {
@@ -36,6 +38,11 @@ class View {
 
     this.gameBoard.classList.add(`game__board--${gameLevel}`);
     this.gameBoard.insertAdjacentHTML('afterbegin', cards);
+  }
+
+  clearGameBoard = (gameLevel) => {
+    this.gameBoard.innerHTML = '';
+    this.gameBoard.classList.remove(`game__board--${gameLevel}`);
   }
 
   addCardColor = (randomNumber) => {
@@ -62,14 +69,17 @@ class View {
     this.infoBox.insertAdjacentHTML('afterbegin', alert);
   }
 
-  clearGameBoard = (gameLevel) => {
-    this.gameBoard.innerHTML = '';
-    this.gameBoard.classList.remove(`game__board--${gameLevel}`);
-  }
-
   clearMessage = () => {
     const alertBox = document.querySelector('#info-box > .alert');
     if(alertBox) { this.infoBox.removeChild(alertBox); }
+  }
+
+  setDashboardMessage = (msg, type) => {
+    this.dashboardMessage.innerHTML = `<h4 class="text-${type}">${msg}</h4>`;
+  }
+
+  clearDashboardMessage = () => {
+    this.dashboardMessage.innerHTML = '';
   }
 
   clearPlayerInput = () => {
