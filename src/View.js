@@ -49,7 +49,7 @@ class View {
     const findCardByNumber = document.querySelector(`#card-${randomNumber}`);
     findCardByNumber.classList.add('bg-primary');
 
-    setTimeout(() => this.removeCardColor(findCardByNumber), 2000);
+    return findCardByNumber;
   }
 
   removeCardColor = (card) => {
@@ -84,6 +84,12 @@ class View {
 
   clearPlayerInput = () => {
     this.playerNameInput.value = '';
+  }
+
+  setDefaultGameFields = (lives, points, timer) => {
+    this.badgeLives.innerText = `${lives}`;
+    this.badgePoints.innerText = `${points}`;
+    this.gameTimer(timer);
   }
 }
 

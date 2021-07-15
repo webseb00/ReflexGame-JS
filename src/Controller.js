@@ -5,9 +5,11 @@ class Controller {
   constructor(view, model) {
     this.view = view;
     this.model = model;
+    this.timerInterval;
+    this.cardInterval;
   }
 
-  handleStartGame = () => {
+  handleValidation = () => {
     const inputValue = this.view.playerNameInput.value;
     const regex = /[a-zA-Z]+/g;
     const { gameState } = this.model;
@@ -38,15 +40,13 @@ class Controller {
       setDashboardPage();
       this.handleGamePlay();
       endGameButton.addEventListener('click', this.cancelGame);
+      endGameButton.classList.add('disabled');
     } 
   }
 
   handleGamePlay = () => {
     const { gameplayLevel, gameRound } = this.model.gameState;
-    const { gameTimer, addCardColor, gameBoard, createGameCards, badgePoints, badgeLives, badgeName, setDashboardMessage, clearDashboardMessage, playAgainButton } = this.view;
-
-    let startTimerInterval;
-    let startCardInterval;
+    const { gameTimer, addCardColor, removeCardColor, gameBoard, createGameCards, badgePoints, badgeLives, badgeName, setDashboardMessage, clearDashboardMessage, playAgainButton } = this.view;
     let counter = 3;
 
     const timeToStart = () => {
@@ -54,13 +54,13 @@ class Controller {
       counter--;
 
       if(counter < 0) {
-        setDashboardMessage('Start!', 'success');
+        setDashboardMessage('START!', 'success');
         clearInterval(timeToStartCounter);
 
         setTimeout(() => {
           clearDashboardMessage();
-          startTimerInterval = setInterval(timerInterval, 1000);
-          startCardInterval = setInterval(cardInterval, 2000);
+          this.timerInterval = setInterval(timerInterval, 1000);
+          this.cardInterval = setInterval(cardColorInterval, 2000);
         }, 2000);
       }
     }
@@ -77,34 +77,42 @@ class Controller {
     // if player is playing first time, create new cards
     if(!gameRound) { createGameCards(gameplayLevel, numberOfCards); }
 
-    let clickedCardNumber = null;
+    let cardNumberHolder = null;
     let randomNumber = null;
     let cardClickable = true;
+    let cardClicked = true;
 
-    const checkPlayerLives = () => {
-      --this.model.gameState.playerLives;
+    const removePlayerLive = () => {
+      this.model.gameState.playerLives--;
       badgeLives.innerText = `${this.model.gameState.playerLives}`;
       setDashboardMessage('You lost one live! Stay focus!', 'warning');
+    }
+
+    const checkPlayerLives = () => { 
+      if(!cardNumberHolder && this.model.gameState.playerLives >= 1) {
+        removePlayerLive();
+      }
 
       if(this.model.gameState.playerLives === 0) {
         clearGamePlay();
         setDashboardMessage('Game Over! You lost all lives!', 'danger');
-
-        clickedCardNumber = null;
         randomNumber = null;
       }
+      cardNumberHolder = null;
     }
 
     const checkClickedCard = e => {
       if(e.target.classList.contains('game__board-card')) {
-        clickedCardNumber = e.target.id.split('-')[1];
+        cardNumberHolder = e.target.id.split('-')[1];
         // prevent multiple clicks of the same card
         if(cardClickable) {
-          if(clickedCardNumber === randomNumber.toString()) {
+          cardClicked = true;
+          if(cardNumberHolder === randomNumber) {
             ++this.model.gameState.playerPoints;
             badgePoints.innerText = `${this.model.gameState.playerPoints}`;
             cardClickable = false;
           } else {
+            removePlayerLive();
             checkPlayerLives();
           }
         }
@@ -113,18 +121,20 @@ class Controller {
 
     gameBoard.addEventListener('click', checkClickedCard);
 
-    const checkIfCardClicked = () => {
-      if(!clickedCardNumber) { checkPlayerLives(); }
-    }
-
     // set interval for highlighting card
-    const cardInterval = () => {
+    const cardColorInterval = () => {
       // allow user click next random card
       cardClickable = true;
 
-      randomNumber = Math.floor(Math.random() * numberOfCards) + 1;
-      addCardColor(randomNumber);
-      checkIfCardClicked();
+      randomNumber = (Math.floor(Math.random() * numberOfCards) + 1).toString();
+      const getClickedCard = addCardColor(randomNumber);
+      cardClicked = false;
+      setTimeout(() => {
+        removeCardColor(getClickedCard);
+        if(!cardClicked) {
+          checkPlayerLives();
+        }
+      }, 2000);
     }
 
     // set interval for game timer
@@ -133,56 +143,64 @@ class Controller {
       gameTimer(this.model.gameState.gameTimeDuration);
 
       if(this.model.gameState.gameTimeDuration === 0) {
-        setDashboardMessage('Time is out! Game Over!', 'success');
+        setDashboardMessage('Time is out!', 'success');
         clearGamePlay();
       }
     }
 
     const clearGamePlay = () => {
-      clearInterval(startCardInterval);
-      clearInterval(startTimerInterval);
+      const { endGameButton } = this.view;
+      
+      clearInterval(this.cardInterval);
+      clearInterval(this.timerInterval);
 
       gameBoard.removeEventListener('click', checkClickedCard);
 
+      endGameButton.classList.remove('disabled');
       playAgainButton.classList.remove('disabled');
       playAgainButton.addEventListener('click', this.playGameAgain);
     }
   }
 
   playGameAgain = () => {
-    const { playAgainButton, badgeLives, gameTimer, badgePoints } = this.view;
+    const { playAgainButton, setDefaultGameFields } = this.view;
+    const { playerLives, playerPoints, gameTimeDuration } = this.model.gameState;
+
     this.model.gameState.gameRound++;
     this.model.gameState.playerPoints = 0;
     this.model.gameState.playerLives = 3;
     this.model.gameState.gameTimeDuration = 60;
 
-    // display default player badges
-    badgeLives.innerText = `${this.model.gameState.playerLives}`;
-    badgePoints.innerText = `${this.model.gameState.playerPoints}`;
-    gameTimer(this.model.gameState.gameTimeDuration);
+    setDefaultGameFields(playerLives, playerPoints, gameTimeDuration);
     
     playAgainButton.removeEventListener('click', this.playGameAgain);
     playAgainButton.classList.add('disabled');
+
     this.handleGamePlay();
   }
 
   cancelGame = () => {
     // reset main game state and remove event listeners 
-    const { resetState } = this.model;
-    const { clearPlayerInput, setWelcomePage, endGameButton, startGameButton, difficultyLevelButtons, clearDashboardMessage } = this.view;
+    const { clearPlayerInput, setWelcomePage, endGameButton, startGameButton, difficultyLevelButtons, clearDashboardMessage, setDefaultGameFields, clearGameBoard, playAgainButton } = this.view;
 
     clearDashboardMessage();
-    resetState();
+    clearGameBoard(this.model.gameState.gameplayLevel);
+    this.model.resetState();
     clearPlayerInput();
     setWelcomePage();
+    setDefaultGameFields(this.model.gameState.playerLives, this.model.gameState.playerPoints, this.model.gameState.gameTimeDuration);
 
     endGameButton.removeEventListener('click', this.cancelGame);
-    startGameButton.removeEventListener('click', this.handleStartGame);
+    startGameButton.removeEventListener('click', this.handleValidation);
     difficultyLevelButtons.forEach(button => {
       button.removeEventListener('click', e => this.setGamplayLevel(e));
       button.checked = false;
     });
     difficultyLevelButtons[0].checked = true;
+    playAgainButton.classList.add('disabled');
+
+    clearInterval(this.timerInterval);
+    clearInterval(this.cardInterval);
 
     this.initFunctions();
   }
@@ -193,11 +211,9 @@ class Controller {
   }
 
   initFunctions = () => {
-    const { gameplayLevel } = this.model.gameState;
-    const { startGameButton, difficultyLevelButtons, clearGameBoard } = this.view;
+    const { startGameButton, difficultyLevelButtons } = this.view;
     difficultyLevelButtons.forEach(button => button.addEventListener('click', e => this.setGameplayLevel(e)));
-    startGameButton.addEventListener('click', this.handleStartGame);
-    clearGameBoard(gameplayLevel);
+    startGameButton.addEventListener('click', this.handleValidation);
   }
 }
 
