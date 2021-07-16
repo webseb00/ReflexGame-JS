@@ -82,7 +82,7 @@ class Controller {
         previousRandomNumber = 0,
         gameRound = 0,
         cardClickable = true,
-        cardClicked = true;
+        cardClicked = false;
 
     const removePlayerLive = () => {
       this.model.gameState.playerLives--;
@@ -143,9 +143,7 @@ class Controller {
       setTimeout(() => {
         removeCardColor(getClickedCard);
         gameRound++;
-        if(!cardClicked) {
-          checkPlayerLives();
-        }
+        if(!cardClicked) { checkPlayerLives(); }
       }, 1500);
     }
 
